@@ -1,0 +1,8 @@
+apiVersion: cloudstate.io/v1alpha1
+kind: StatefulService
+metadata:
+  name: fraud
+spec:
+  containers:
+#  - image: cloudstate.io/java-presence:latest
+#    name: presence

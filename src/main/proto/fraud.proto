@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/money.proto";
+import "google/type/latlng.proto";
+import "cloudstate/entity_key.proto";
+
+package com.google.cloudstate.samples.fraud;
+
+option java_multiple_files = true;
+
+option java_package = "com.google.cloudstate.samples.fraud";
+
+
+message Transaction {
+    .google.protobuf.Timestamp timestamp = 1;
+    .google.type.Money amount = 3;
+    string description = 2;
+    .google.type.LatLng location = 4;
+}
+
+message DevicePing {
+    string user_id = 1 [(.cloudstate.entity_key) = true];
+    .google.protobuf.Timestamp timestamp = 2;
+    string description = 3;
+    .google.type.LatLng location = 4;
+}
+
+message UserTransaction {
+    string user_id = 1 [(.cloudstate.entity_key) = true];
+    Transaction transaction = 2;
+}
+
+message UserTransactions {
+    repeated UserTransaction transactions = 1;
+}
+
+message GetUserTransactions {
+    string user_id = 1 [(.cloudstate.entity_key) = true];
+}
+
+service Activity {
+
+    rpc AddTransaction(UserTransaction) returns (.google.protobuf.Empty);
+
+    rpc GetTransactions(GetUserTransactions) returns (UserTransactions);
+
+    rpc UpdateDevicePing(DevicePing) returns (.google.protobuf.Empty);
+
+}
