@@ -2,7 +2,7 @@
 
 
 ```
-./mvnw compile exec:java -Dexec.mainClass="com.google.cloudstate.sample.fraud.Server"
+./gradlew run
 ```
 
 ```
@@ -10,5 +10,5 @@ docker run -it --rm --network="host" cloudstateio/cloudstate-proxy-dev-mode -Dcl
 ```
 
 ```
-./mvnw compile exec:java -Dexec.mainClass="com.google.cloudstate.sample.fraud.Simulator"
+./gradlew simulator
 ```
