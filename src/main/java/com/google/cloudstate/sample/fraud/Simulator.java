@@ -1,8 +1,8 @@
 package com.google.cloudstate.sample.fraud;
 
 import com.devskiller.jfairy.Fairy;
-import com.google.cloudstate.samples.fraud.*;
-import com.google.cloudstate.samples.fraud.ActivityGrpc.ActivityBlockingStub;
+import com.google.cloudstate.sample.fraud.*;
+import com.google.cloudstate.sample.fraud.ActivityGrpc.ActivityBlockingStub;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import com.google.type.LatLng;
