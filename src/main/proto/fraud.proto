@@ -10,7 +10,7 @@ package com.google.cloudstate.samples.fraud;
 
 option java_multiple_files = true;
 
-option java_package = "com.google.cloudstate.samples.fraud";
+option java_package = "com.google.cloudstate.sample.fraud";
 
 
 message Transaction {
