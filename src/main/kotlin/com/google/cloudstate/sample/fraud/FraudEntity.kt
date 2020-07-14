@@ -1,16 +1,15 @@
 package com.google.cloudstate.sample.fraud
 
-import com.google.cloudstate.sample.fraud.Transaction
-import com.google.cloudstate.sample.fraud.UserTransaction
-import com.google.cloudstate.sample.fraud.UserTransactions
 import com.google.protobuf.Duration
 import com.google.protobuf.Empty
 import com.google.protobuf.util.Timestamps
 import com.google.type.LatLng
 import io.cloudstate.javasupport.crdt.CommandContext
-import io.cloudstate.javasupport.crdt.CommandHandler
-import io.cloudstate.javasupport.crdt.CrdtEntity
+import io.cloudstate.javasupport.crdt.CrdtCreationContext
 import io.cloudstate.javasupport.crdt.GSet
+import io.cloudstate.kotlinsupport.annotations.EntityId
+import io.cloudstate.kotlinsupport.annotations.crdt.CommandHandler
+import io.cloudstate.kotlinsupport.annotations.crdt.CrdtEntity
 import org.apache.lucene.util.SloppyMath
 import java.time.Instant
 import java.time.ZoneId
@@ -19,7 +18,9 @@ import java.time.format.FormatStyle
 import java.util.*
 
 @CrdtEntity
-class FraudEntity(val transactions: GSet<UserTransaction>) {
+class FraudEntity(@EntityId private val username: String) { //(val transactions: GSet<UserTransaction>) {
+
+    private val transactions: GSet<UserTransaction> = TODO()
 
     private val MAX_VELOCITY = 20.0
 
