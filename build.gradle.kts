@@ -17,6 +17,7 @@ plugins {
     application
     kotlin("jvm") version "1.3.72"
     id("com.google.protobuf") version "0.8.12"
+    id("com.google.cloud.tools.jib") version "2.4.0"
 }
 
 repositories {
@@ -69,6 +70,12 @@ java {
 
 application {
     mainClassName = "com.google.cloudstate.sample.fraud.Server"
+}
+
+jib {
+    container {
+        mainClass = application.mainClassName
+    }
 }
 
 tasks.register<JavaExec>("simulator") {
