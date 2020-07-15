@@ -81,6 +81,9 @@ jib {
     container {
         mainClass = application.mainClassName
     }
+    from {
+        image = "adoptopenjdk/openjdk8"
+    }
 }
 
 tasks.register<JavaExec>("simulator") {
