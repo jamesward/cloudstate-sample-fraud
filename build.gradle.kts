@@ -28,7 +28,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.google.protobuf:protobuf-java:$protobufVersion")
     implementation("com.google.protobuf:protobuf-java-util:$protobufVersion")
-    implementation("io.cloudstate:cloudstate-kotlin-support:0.5.1")
+    implementation("io.cloudstate:cloudstate-kotlin-support:0.5.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("io.grpc:grpc-stub:$grpcVersion")
     implementation("io.grpc:grpc-protobuf:$grpcVersion")
@@ -67,7 +67,7 @@ java {
 }
 
 sourceSets {
-    val main by getting
+    val main by getting { }
     main.java.srcDirs("build/generated/source/proto/main/java")
     main.java.srcDirs("build/generated/source/proto/main/grpc")
     main.java.srcDirs("build/generated/source/proto/main/grpckt")
@@ -86,7 +86,7 @@ jib {
 tasks.register<JavaExec>("simulator") {
     dependsOn("classes")
     classpath = sourceSets["main"].runtimeClasspath
-    main = "com.google.cloudstate.sample.fraud.Simulator"
+    main = "com.google.cloudstate.sample.fraud.SimulatorKt"
 }
 
 task("stage").dependsOn("installDist")
