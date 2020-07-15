@@ -27,8 +27,15 @@ import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import java.util.function.Supplier
 
-fun main() = runBlocking {
-    val channel = ManagedChannelBuilder.forTarget("localhost:9000").usePlaintext().build()
+fun main(args: Array<String>) = runBlocking {
+    val target = args.firstOrNull() ?: "localhost:9000"
+    val channelBuilder = ManagedChannelBuilder.forTarget(target)
+
+    val channel = if (target.endsWith(":443"))
+        channelBuilder.useTransportSecurity().build()
+    else
+        channelBuilder.usePlaintext().build()
+
     val stub = ActivityGrpcKt.ActivityCoroutineStub(channel)
     val userId = UUID.randomUUID()
     var time = Instant.parse("2007-12-03T10:15:30.00Z").toEpochMilli()

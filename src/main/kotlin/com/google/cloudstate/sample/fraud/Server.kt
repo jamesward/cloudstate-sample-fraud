@@ -18,6 +18,10 @@ import io.cloudstate.kotlinsupport.cloudstate
 
 fun main() {
     cloudstate {
+        config {
+            port = 8080
+        }
+
         crdt {
             entityService = FraudEntity::class
             descriptor = Fraud.getDescriptor().findServiceByName("Activity")

@@ -80,9 +80,11 @@ application {
 jib {
     container {
         mainClass = application.mainClassName
+        jvmFlags = listOf("-XX:+UseG1GC", "-XX:+UseStringDeduplication")
+        ports = listOf("8080")
     }
     from {
-        image = "adoptopenjdk/openjdk8"
+        image = "openjdk:8u242-jdk"
     }
 }
 

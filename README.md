@@ -6,7 +6,7 @@
 ```
 
 ```
-docker run -it --rm --network="host" cloudstateio/cloudstate-proxy-dev-mode -Dcloudstate.proxy.user-function-port=8088 -Dcloudstate.proxy.passivation-timeout=60m
+docker run -it --rm --network="host" cloudstateio/cloudstate-proxy-dev-mode -Dcloudstate.proxy.user-function-port=8080 -Dcloudstate.proxy.passivation-timeout=60m
 ```
 
 ```
@@ -82,4 +82,34 @@ kubectl logs -f $pod -c user-container
 ```
 docker stop $(docker ps -q)
 ./gradlew simulator
+```
+
+## Lightbend Cloudstate
+
+*Note: This must use public images for demo purposes to avoid setting up docker auth*
+
+```
+export PROJECT_ID=YOUR_PROJECT_ID
+```
+
+```
+./gradlew jib --image=gcr.io/$PROJECT_ID/cloudstate-sample-fraud
+```
+
+```
+csctl project new demo
+# get UUID
+csctl config set project CS_PROJECT_ID
+csctl services deploy demo-fraud gcr.io/$PROJECT_ID/cloudstate-sample-fraud
+csctl services expose demo-fraud
+```
+
+```
+./gradlew simulator --args="YOUR_SERVICE.us-east1.apps.cloudstate.com:443"
+```
+
+```
+# create service account with log writer role
+# create key
+csctl projects set log-aggregator --google-key-file=blah.json --log-service=stackdriver
 ```
