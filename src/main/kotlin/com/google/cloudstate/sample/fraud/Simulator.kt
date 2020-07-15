@@ -5,15 +5,17 @@ import com.google.protobuf.util.Timestamps
 import com.google.type.LatLng
 import com.google.type.Money
 import io.grpc.ManagedChannelBuilder
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.time.Duration
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import java.util.function.Supplier
 
-fun main() {
+fun main() = runBlocking {
     val channel = ManagedChannelBuilder.forTarget("localhost:9000").usePlaintext().build()
-    val stub = ActivityGrpc.newBlockingStub(channel)
+    val stub = ActivityGrpcKt.ActivityCoroutineStub(channel)
     val userId = UUID.randomUUID()
     var time = Instant.parse("2007-12-03T10:15:30.00Z").toEpochMilli()
     var location = LatLng.newBuilder().setLatitude(39.756138).setLongitude(-104.927200).build()
@@ -49,14 +51,14 @@ fun main() {
 
         println(transaction)
 
-        val request = UserTransaction.newBuilder().setUserId(userId.toString()).setTransaction(transaction).build()
-        stub.addTransaction(request)
+        val userTransaction = UserTransaction.newBuilder().setUserId(userId.toString()).setTransaction(transaction).build()
+        stub.addTransaction(userTransaction)
 
         /*
         UserTransactions transactions = stub.getTransactions(GetUserTransactions.newBuilder().setUserId(userId.toString()).build());
         println(transactions);
          */
 
-        Thread.sleep(1000)
+        delay(1000)
     }
 }

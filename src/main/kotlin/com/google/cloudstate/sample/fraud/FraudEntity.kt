@@ -57,8 +57,8 @@ class FraudEntity(private val transactions: GSet<UserTransaction>) {
     }
 
     @CommandHandler
-    fun getTransactions(): UserTransactions {
-        return UserTransactions.newBuilder().addAllTransactions(transactions).build()
+    fun getTransactions(): Transactions {
+        return Transactions.newBuilder().addAllTransactions(transactions.map{it.transaction}).build()
     }
 
 }

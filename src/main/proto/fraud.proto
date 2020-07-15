@@ -15,16 +15,9 @@ option java_package = "com.google.cloudstate.sample.fraud";
 
 message Transaction {
     .google.protobuf.Timestamp timestamp = 1;
-    .google.type.Money amount = 3;
-    string description = 2;
-    .google.type.LatLng location = 4;
-}
-
-message DevicePing {
-    string user_id = 1 [(.cloudstate.entity_key) = true];
-    .google.protobuf.Timestamp timestamp = 2;
-    string description = 3;
-    .google.type.LatLng location = 4;
+    .google.type.Money amount = 2;
+    .google.type.LatLng location = 3;
+    string description = 4;
 }
 
 message UserTransaction {
@@ -32,8 +25,8 @@ message UserTransaction {
     Transaction transaction = 2;
 }
 
-message UserTransactions {
-    repeated UserTransaction transactions = 1;
+message Transactions {
+    repeated Transaction transactions = 1;
 }
 
 message GetUserTransactions {
@@ -44,8 +37,6 @@ service Activity {
 
     rpc AddTransaction(UserTransaction) returns (.google.protobuf.Empty);
 
-    rpc GetTransactions(GetUserTransactions) returns (UserTransactions);
-
-    rpc UpdateDevicePing(DevicePing) returns (.google.protobuf.Empty);
+    rpc GetTransactions(GetUserTransactions) returns (Transactions);
 
 }
