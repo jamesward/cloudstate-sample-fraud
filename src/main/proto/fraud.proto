@@ -39,6 +39,10 @@ message UserTransaction {
     Transaction transaction = 2;
 }
 
+message TransactionAdded {
+    Transaction transaction = 1;
+}
+
 message Transactions {
     repeated Transaction transactions = 1;
 }
@@ -47,7 +51,7 @@ message GetUserTransactions {
     string user_id = 1 [(.cloudstate.entity_key) = true];
 }
 
-service Activity {
+service ActivityService {
 
     rpc AddTransaction(UserTransaction) returns (.google.protobuf.Empty);
 

@@ -22,9 +22,10 @@ fun main() {
             port = 8080
         }
 
-        crdt {
-            entityService = FraudEntity::class
-            descriptor = Fraud.getDescriptor().findServiceByName("Activity")
+        eventsourced {
+            entityService = ActivityEntity::class
+            descriptor = Fraud.getDescriptor().findServiceByName("ActivityService")
+            additionalDescriptors = listOf(Fraud.getDescriptor())
         }
     }.start().toCompletableFuture().get()
 }

@@ -17,10 +17,9 @@ package com.google.cloudstate.sample.fraud
 import com.google.protobuf.Empty
 import com.google.protobuf.util.Timestamps
 import com.google.type.LatLng
-import io.cloudstate.javasupport.crdt.CommandContext
-import io.cloudstate.javasupport.crdt.GSet
-import io.cloudstate.kotlinsupport.annotations.crdt.CommandHandler
-import io.cloudstate.kotlinsupport.annotations.crdt.CrdtEntity
+import io.cloudstate.javasupport.eventsourced.CommandContext
+import io.cloudstate.kotlinsupport.annotations.EntityId
+import io.cloudstate.kotlinsupport.annotations.eventsourced.*
 import org.apache.lucene.util.SloppyMath
 import java.time.Instant
 import java.time.ZoneId
@@ -28,29 +27,43 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 
-@CrdtEntity
-class FraudEntity(private val transactions: GSet<UserTransaction>) {
+@EventSourcedEntity
+class ActivityEntity(@EntityId private val userId: String) {
 
     private val MAX_VELOCITY = 20.0
 
+    private val transactions: MutableList<Transaction> = mutableListOf()
+
+    private fun LatLng.url(): String {
+        return "https://www.google.com/maps/@$latitude,$longitude,15z"
+    }
+
+    @Snapshot
+    fun snapshot(): Transactions = Transactions.newBuilder().addAllTransactions(transactions).build()
+
+    @SnapshotHandler
+    fun handleSnapshot(snapshot: Transactions) {
+        transactions.clear()
+        transactions.addAll(snapshot.transactionsList)
+    }
+
     @CommandHandler
-    fun addTransaction(transaction: UserTransaction, ctx: CommandContext?): Empty {
+    fun addTransaction(userTransaction: UserTransaction, ctx: CommandContext): Empty {
         val maybePreviousTransaction: Optional<Transaction> = transactions.stream()
-                .map(UserTransaction::getTransaction)
                 .max { a, b -> Timestamps.compare(a.timestamp, b.timestamp) }
 
         val maybeDistanceInMeters = maybePreviousTransaction.map { previousTransaction ->
             val previous: LatLng = previousTransaction.location
-            val current: LatLng = transaction.transaction.location
+            val current: LatLng = userTransaction.transaction.location
             SloppyMath.haversinMeters(previous.latitude, previous.longitude, current.latitude, current.longitude)
         }
 
         val maybeTimeBetween = maybePreviousTransaction.map { previousTransaction ->
-            Timestamps.between(previousTransaction.timestamp, transaction.transaction.timestamp)
+            Timestamps.between(previousTransaction.timestamp, userTransaction.transaction.timestamp)
         }
 
         // m/s
-        val maybeVelocity = maybeDistanceInMeters.flatMap { distance: Double ->
+        val maybeVelocity = maybeDistanceInMeters.flatMap { distance ->
             maybeTimeBetween.map { time -> distance / time.seconds }
         }
 
@@ -58,21 +71,28 @@ class FraudEntity(private val transactions: GSet<UserTransaction>) {
         // but we have great data here for ML
         if (maybeVelocity.orElse(0.0) > MAX_VELOCITY) {
             val dtf = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(Locale.US).withZone(ZoneId.systemDefault())
-            val instant = Instant.ofEpochSecond(transaction.transaction.timestamp.seconds)
+            val instant = Instant.ofEpochSecond(userTransaction.transaction.timestamp.seconds)
             println("\nPOSSIBLE FRAUD!!!")
-            println("Merchant: " + transaction.transaction.description)
-            println("Amount: $" + transaction.transaction.amount.units.toString() + ".00")
-            println("On: " + dtf.format(instant))
-            println("Map: https://www.google.com/maps/@" + transaction.transaction.location.latitude.toString() + "," + transaction.transaction.location.longitude.toString() + ",15z")
+            println("userId: $userId")
+            println("Merchant: ${userTransaction.transaction.description}")
+            println("Amount: $${userTransaction.transaction.amount.units}.00")
+            println("On: ${dtf.format(instant)}")
+            println("Map: ${userTransaction.transaction.location.url()}")
         }
 
-        transactions.add(transaction)
+        ctx.emit(TransactionAdded.newBuilder().setTransaction(userTransaction.transaction).build())
+
         return Empty.getDefaultInstance()
+    }
+
+    @EventHandler
+    fun transactionAdded(transactionAdded: TransactionAdded) {
+        transactions.add(transactionAdded.transaction)
     }
 
     @CommandHandler
     fun getTransactions(): Transactions {
-        return Transactions.newBuilder().addAllTransactions(transactions.map{it.transaction}).build()
+        return snapshot()
     }
 
 }

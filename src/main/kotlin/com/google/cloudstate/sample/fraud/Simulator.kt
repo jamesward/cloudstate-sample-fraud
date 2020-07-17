@@ -24,8 +24,7 @@ import kotlinx.coroutines.runBlocking
 import java.time.Duration
 import java.time.Instant
 import java.util.*
-import java.util.concurrent.ThreadLocalRandom
-import java.util.function.Supplier
+import kotlin.random.Random
 
 fun main(args: Array<String>) = runBlocking {
     val target = args.firstOrNull() ?: "localhost:9000"
@@ -36,43 +35,57 @@ fun main(args: Array<String>) = runBlocking {
     else
         channelBuilder.usePlaintext().build()
 
-    val stub = ActivityGrpcKt.ActivityCoroutineStub(channel)
-    val userId = UUID.randomUUID()
+    val stub = ActivityServiceGrpcKt.ActivityServiceCoroutineStub(channel)
+
+    // todo: give each user their own time
     var time = Instant.parse("2007-12-03T10:15:30.00Z").toEpochMilli()
-    var location = LatLng.newBuilder().setLatitude(39.756138).setLongitude(-104.927200).build()
+
+    val userLocations = mutableMapOf(
+            UUID.randomUUID() to LatLng.newBuilder().setLatitude(39.756138).setLongitude(-104.927200).build(),
+            UUID.randomUUID() to LatLng.newBuilder().setLatitude(37.7577627).setLongitude(-122.4726193).build(),
+            UUID.randomUUID() to LatLng.newBuilder().setLatitude(41.2919667).setLongitude(-96.1512877).build(),
+            UUID.randomUUID() to LatLng.newBuilder().setLatitude(33.6056219).setLongitude(-112.2651324).build(),
+            UUID.randomUUID() to LatLng.newBuilder().setLatitude(33.7678358).setLongitude(-84.4906432).build()
+    )
+
     val minTimestampIncrement = Duration.ofMinutes(15).toMillis()
     val maxTimestampIncrement = Duration.ofDays(1).toMillis()
     val minAmount = 1
     val maxAmount = 300
-    val minLatLngIncrement = 0.00000001
+    val minLatLngIncrement = -1.0
     val maxLatLngIncrement = 1.0
     val fairy = Fairy.create()
-    val randomLatLngIncrement = Supplier { ThreadLocalRandom.current().nextDouble(minLatLngIncrement, maxLatLngIncrement) }
-    val randomTimeIncrement = Supplier { ThreadLocalRandom.current().nextLong(minTimestampIncrement, maxTimestampIncrement) }
-    val randomAmount = Supplier { ThreadLocalRandom.current().nextInt(minAmount, maxAmount) }
-    val randomCompany = Supplier { fairy.company().name }
+    val randomLatLngIncrement = { Random.nextDouble(minLatLngIncrement, maxLatLngIncrement) }
+    val randomTimeIncrement = { Random.nextLong(minTimestampIncrement, maxTimestampIncrement) }
+    val randomAmount = { Random.nextInt(minAmount, maxAmount) }
+    val randomCompany = { fairy.company().name }
 
     while (true) {
-        time += randomTimeIncrement.get()
+        time += randomTimeIncrement()
         val timestamp = Timestamps.fromMillis(time)
 
-        val amount = randomAmount.get()
+        val amount = randomAmount()
 
-        location = LatLng.newBuilder()
-                .setLatitude(location.latitude + randomLatLngIncrement.get())
-                .setLongitude(location.longitude + randomLatLngIncrement.get())
+        val userId = userLocations.keys.shuffled().first()
+
+        val currentLocation = userLocations[userId]!!
+
+        val newLocation = LatLng.newBuilder()
+                .setLatitude(currentLocation.latitude + randomLatLngIncrement())
+                .setLongitude(currentLocation.longitude + randomLatLngIncrement())
                 .build()
 
+        userLocations[userId] = newLocation
+
         val transaction = Transaction.newBuilder()
-                .setDescription(randomCompany.get())
+                .setDescription(randomCompany())
                 .setTimestamp(timestamp)
-                .setLocation(location)
+                .setLocation(newLocation)
                 .setAmount(Money.newBuilder().setUnits(amount.toLong()).build())
                 .build()
 
-        println(transaction)
-
         val userTransaction = UserTransaction.newBuilder().setUserId(userId.toString()).setTransaction(transaction).build()
+        println(userTransaction)
         stub.addTransaction(userTransaction)
 
         /*
@@ -80,6 +93,6 @@ fun main(args: Array<String>) = runBlocking {
         println(transactions);
          */
 
-        delay(1000)
+        delay(100)
     }
 }
