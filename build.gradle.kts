@@ -5,15 +5,15 @@ import com.google.protobuf.gradle.plugins
 import com.google.protobuf.gradle.protobuf
 import com.google.protobuf.gradle.protoc
 
-val grpcVersion = "1.30.2"
-val protobufVersion = "3.12.2"
-val grpcKotlinVersion = "0.1.4"
-val coroutinesVersion = "1.3.7"
+val grpcVersion = "1.32.1"
+val protobufVersion = "3.13.0"
+val grpcKotlinVersion = "0.2.1"
+val coroutinesVersion = "1.3.9"
 
 plugins {
     application
-    kotlin("jvm") version "1.3.72"
-    id("com.google.protobuf") version "0.8.12"
+    kotlin("jvm") version "1.4.10"
+    id("com.google.protobuf") version "0.8.13"
     id("com.google.cloud.tools.jib") version "2.4.0"
 }
 
@@ -49,7 +49,7 @@ protobuf {
             artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
         }
         id("grpckt") {
-            artifact = "io.grpc:protoc-gen-grpc-kotlin:$grpcKotlinVersion"
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:$grpcKotlinVersion:jdk7@jar"
         }
     }
     generateProtoTasks {
