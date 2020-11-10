@@ -26,6 +26,8 @@ fun main() {
             entityService = ActivityEntity::class
             descriptor = Fraud.getDescriptor().findServiceByName("ActivityService")
             additionalDescriptors = listOf(Fraud.getDescriptor())
+            snapshotEvery = 1
+            persistenceId = "activity"
         }
     }.start().toCompletableFuture().get()
 }

@@ -6,7 +6,7 @@
 ```
 
 ```
-docker run -it --rm --network="host" cloudstateio/cloudstate-proxy-dev-mode -Dcloudstate.proxy.user-function-port=8080 -Dcloudstate.proxy.passivation-timeout=60m
+docker run -it --rm --network="host" cloudstateio/cloudstate-proxy-dev-mode:0.5.1 -Dcloudstate.proxy.user-function-port=8080 -Dcloudstate.proxy.passivation-timeout=60m
 ```
 
 ```
