@@ -1,14 +1,23 @@
 # Cloudstate Sample Fraud Detection
 
 ## Run Locally
+Start the Cloudstate function:
 ```
 ./gradlew run
 ```
 
+In another terminal, start the Cloudstate Dev Proxy:
+
+On Linux:
 ```
 docker run -it --rm --network="host" cloudstateio/cloudstate-proxy-dev-mode:0.5.1 -Dcloudstate.proxy.user-function-port=8080 -Dcloudstate.proxy.passivation-timeout=60m
 ```
+On Mac or Win:
+```
+docker run -it --rm -p9000:9000 cloudstateio/cloudstate-proxy-dev-mode:0.5.1 -Dcloudstate.proxy.user-function-host=host.docker.internal -Dcloudstate.proxy.user-function-port=8080 -Dcloudstate.proxy.passivation-timeout=60m
+```
 
+In another terminal, run the simulator:
 ```
 ./gradlew simulator
 ```
